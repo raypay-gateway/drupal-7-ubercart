@@ -122,7 +122,7 @@ class RayPay {
         $param_request = array(
             'userID' => $this->UserID,
             'marketingID' => $this->MarketingID,
-            'amount' => strval($this->Amount * 10),
+            'amount' => strval($this->Amount),
             'enableSandBox' => $this->EnableSandBox,
             'invoiceID'    => strval($invoice_id),
             'desc' => $this->Description,
