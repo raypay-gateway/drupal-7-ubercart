@@ -1,0 +1,254 @@
+<?php
+
+/**
+ * Implements hook_menu()
+ */
+function uc_raypay_menu() {
+  $items = array();
+
+  $items['cart/raypay/complete/%'] = array(
+    'title' => 'Order complete',
+    'page callback' => 'uc_raypay_complete_page',
+    'page arguments' => array(3),
+    'access callback' => 'uc_raypay_completion_access',
+    'type' => MENU_CALLBACK,
+  );
+
+  return $items;
+}
+
+/**
+ * Access callback for cart/raypay/complete/%
+ */
+function uc_raypay_completion_access() {
+  // All user have access to finish the payment.
+  return TRUE;
+}
+
+/**
+ * Menu callback for cart/raypay/complete
+ */
+function uc_raypay_complete_page($order_id) {
+  // Although Drupal has a built-in class autoloader, It's not compatible with ioncube.
+  // So we load the class manually to make sure.
+  require_once dirname(__FILE__) . '/raypay.class.inc';
+  
+  // Check if $order_id is valid
+  $order = NULL;
+  
+  if (is_numeric($order_id)) {
+    // Load order object
+    $order_id = (int) $order_id;
+    $order = uc_order_load($order_id);
+  }
+
+  if (!is_object($order)) {
+    $msg = t('Order invalid.');
+    drupal_set_message($msg, 'error');
+    watchdog('raypay', 'Invalid order id passed to uc_raypay_complete_page()', WATCHDOG_ERROR);
+    
+    return $msg;
+  }
+
+  // Get merchant ID from module settings.
+  $userID = variable_get('uc_raypay_UserID', '');
+  $marketingID = variable_get('uc_raypay_MarketingID', '');
+  $enableSandBox = variable_get('uc_raypay_EnableSandBox', '');
+  if (empty($userID) || empty($marketingID) ) {
+    $msg = t('RayPay is not configured properly.');
+    drupal_set_message($msg, 'error');
+    return $msg;
+  }
+  
+  // Build parameters for RayPay class constructor
+  // Actually we only need $merchantID, $order_total for verifyTransaction() method
+  $order_total = $order->order_total;
+  // Not needed for verification
+  $description = '';
+  // Not needed for verification
+  $callbackURL = '';
+
+  // Build raypay object with above parameters
+  $raypay = new RayPay($userID,$marketingID,$enableSandBox, $order_total, $description, $callbackURL);
+
+  // Verify Transaction
+  try {
+    $refid = $raypay->verifyTransaction();
+  }
+  catch (RayPayExceptionNok $e) {
+    $msg = 'Transaction not successful or cancelled by user.';
+    drupal_set_message(t($msg), 'error');
+    watchdog('raypay', $msg, array(), WATCHDOG_ERROR);
+
+    return $msg;
+  }
+  catch (RayPayExceptionVerification $e) {
+    // Verification failed.
+    watchdog_exception('raypay', $e);
+    $msg = $e->getMessage();
+    drupal_set_message($msg, 'error');
+
+    return $msg;
+  }
+  catch (\Exception $e) {
+    $msg = t('An unexpected error occured.');
+    drupal_set_message($msg, 'error');
+    watchdog_exception('raypay', $e);
+
+    return $msg;
+  }
+
+  //Log payment success
+  watchdog('raypay', 'RayPay payment #%refid verification succeeded', array('%refid' => $refid), WATCHDOG_INFO);
+  $message = t('Payment successful. Refernce: %refid', array('%refid' => $refid));
+
+  uc_payment_enter($order->order_id, $order->payment_method, $order->order_total, 0, NULL, 'Paid Successfully');
+
+  $output = uc_cart_complete_sale($order, variable_get('uc_new_customer_login', FALSE));
+
+  $page = variable_get('uc_cart_checkout_complete_page', '');
+  if (!empty($page)) {
+    drupal_goto($page);
+  }
+
+  return '<p>' . $message . '</p>' . drupal_render($output);
+}
+
+/**
+ * Implements hook_uc_payment_method().
+ */
+function uc_raypay_uc_payment_method() {
+  $path = drupal_get_path('module', 'uc_raypay') . "/raypay.png";
+
+  $title = theme('image', array(
+    'path' => $path,
+    'alt' => t('RayPay Gateway'),
+    'title' => t('RayPay Gateway'),
+    'attributes' => array(
+      'style' => 'margin-bottom: -5px; position: relative; top: 2px;',
+    ),
+  ));  
+
+  $title .= t('RayPay Gateway');
+
+  $methods = array();
+  $methods['raypay'] = array(
+    'name'     => t('RayPay Gateway'),
+    'title'    => $title,
+    'desc'     => t('Redirect to RayPay Gateway to pay by credit card.'),
+    'callback' => 'uc_payment_method_raypay',
+    'weight'   => 1,
+    'checkout' => TRUE,
+    'redirect' => 'uc_raypay_pay_submission_form',
+  );
+
+  return $methods;
+}
+
+/**
+ * Payment method callback
+ */
+function uc_payment_method_raypay($op, &$order, $form = NULL, &$form_state = NULL) {
+  switch ($op) {
+    case 'cart-process':
+      $_SESSION['pay_method'] = 'raypay';
+      return NULL;
+      break;
+
+    case 'settings':
+      $form['uc_raypay_UserID'] = array(
+        '#type'          => 'textfield',
+        '#title'         => t('UserID'),
+        '#description'   => t('Your RayPay account userID.'),
+        '#default_value' => variable_get('uc_raypay_UserID', ''),
+        '#size'          => 16,
+      );
+
+        $form['uc_raypay_MarketingID'] = array(
+            '#type'          => 'textfield',
+            '#title'         => t('MarketingID'),
+            '#description'   => t('Your RayPay account marketingID.'),
+            '#default_value' => variable_get('uc_raypay_MarketingID', ''),
+            '#size'          => 16,
+        );
+
+        $form['uc_raypay_EnableSandBox'] = array(
+            '#type'          => 'radios',
+            '#title'         => t('EnableSandBox'),
+            '#default_value' => variable_get('uc_raypay_EnableSandBox', ''),
+            '#options'       => array(
+                'No' => t('No'),
+                'Yes' => t('Yes')
+            ),
+        );
+
+      return $form;
+      break;
+
+    default:
+      break;
+  }
+
+  //should not return anything. we don't know in which switch case it is
+}
+
+/**
+ * Form Builder.
+ *
+ * The payment form which will be submitted to the gateway.
+ */
+function uc_raypay_pay_submission_form($form_state, $order) {
+  // Although Drupal has a built-in class autoloader, It's not compatible with ioncube.
+  // So we load the class manually to make sure.
+  require_once dirname(__FILE__) . '/raypay.class.inc';
+  
+  $userID = variable_get('uc_raypay_UserID', '');
+  $marketingID = variable_get('uc_raypay_MarketingID', '');
+  $sandbox = !(variable_get('uc_raypay_EnableSandBox', '') === 'No');
+
+  if (empty($userID) || empty($marketingID)) {
+    drupal_set_message(t('RayPay is not configured properly.'), 'error');
+
+    return array();
+  }
+
+  //Build parameters for payment request
+  $order_total = $order['build_info']['args'][0]->order_total;
+  $order_id = $order['build_info']['args'][0]->order_id;
+  $description = 'Order #' . $order_id;
+  $callbackURL = url("cart/raypay/complete/{$order_id}", array('absolute' => TRUE));
+  $email = '';
+  $mobile = '';
+
+  //Build raypay object with above parameters
+  $raypay = new RayPay($userID,$marketingID,$sandbox, $order_total, $description, $callbackURL , $email , $mobile);
+
+  // Request payment
+  try {
+    $token = $raypay->paymentRequest();
+  }
+  catch (\Exception $e) {
+    $msg = $e->getMessage();
+    drupal_set_message($msg, 'error');
+    watchdog_exception('raypay', $e);
+
+    return array();
+  }
+
+  $link ='https://my.raypay.ir/ipg';
+
+  // Build the form
+  $form = array();
+  $form['#action'] = $link;
+  $form['#method'] = 'GET';
+    $form['token'] = array(
+        '#type' => 'hidden',
+        '#value' => $token
+    );
+
+  $form['submit'] = array(
+    '#type'  => 'submit',
+    '#value' => t('Submit Order')
+  );
+  return $form;
+}

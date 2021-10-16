@@ -1,0 +1,10 @@
+<?php
+
+function uc_raypay_install() {
+}
+
+function uc_raypay_uninstall() {
+  variable_del('uc_zarinpal_UserID');
+  variable_del('uc_zarinpal_MarketingID');
+  variable_del('uc_zarinpal_EnableSandBox');
+}

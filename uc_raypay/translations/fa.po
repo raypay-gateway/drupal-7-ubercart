@@ -1,0 +1,176 @@
+
+#: raypay.class.inc:161;176
+msgid "Can not request payment. !msg"
+msgstr "نمی تواند درخواست پرداخت را ارسال کند. !msg"
+
+#: raypay.class.inc:216
+msgid "Error: $_POST[invoiceid] invalid"
+msgstr "خطا: شناسه پرداخت بازگشتی از درگاه اشتباه است."
+
+#: raypay.class.inc:238;254
+msgid "Transaction verification failed. RefID: %refid, Message: !message"
+msgstr "تایید تراکنش با شکست مواجه شد. شناسه پرداخت: %refid ، پیغام: !message"
+
+#: raypay.class.inc:306
+msgid "Cannot pay this amount due to restrictions of the Shapark system."
+msgstr "به دلیل محدودیت های سیستم شاپرک، قادر به پرداخت این مبلغ نمی باشد."
+
+#: raypay.class.inc:312
+msgid "Specified request was not found."
+msgstr "درخواست مشخص شده، پیدا نشد."
+
+#: raypay.class.inc:315
+msgid "No actions found for this transaction."
+msgstr "هیچ عملیاتی برای این تراکنش پیدا نشد."
+
+#: raypay.class.inc:318
+msgid "Transaction failed."
+msgstr "تراکنش با شکست مواجه شد."
+
+#: raypay.class.inc:321
+msgid "Transaction's amount does not match with the paid amount."
+msgstr "مبلغ تراکنش با مبلغ پرداخت شده مطابقت ندارد."
+
+#: raypay.class.inc:324
+msgid "Maximum transaction division exceeded."
+msgstr "از حد اکثر قسمت بندی تراکنش، عبور نموده است."
+
+#: raypay.class.inc:327
+msgid "Access to requested method is denied."
+msgstr "دسترسی به روش درخواست شده، ممنوع می باشد."
+
+#: raypay.class.inc:330
+msgid "Invalid data sent to AdditionalData() method."
+msgstr "داده های نامعتبر به متد AdditionalData() ارسال شده است."
+
+#: raypay.class.inc:333
+msgid "The specified request is archived."
+msgstr "تقاضای مشخص شده، بایگانی شده است."
+
+#: raypay.class.inc:336
+msgid "Action completed successfully"
+msgstr "عملیات با موفقیت انجام شد."
+
+#: raypay.class.inc:339
+msgid ""
+"Payment was successfull but PaymentVerification() method is already done."
+msgstr "پرداخت موفقیت آمیز بود، اما تایید تراکنش قبلا انجام شده است."
+
+#: raypay.class.inc:342
+msgid "Unknown error code."
+msgstr "کدخطای ناشناخته."
+
+#: raypay.class.inc:345
+msgid "Error code: %code : %msg"
+msgstr "کد خطا: %code : %msg "
+
+#: uc_raypay.module:61
+msgid "Order invalid."
+msgstr "سفارش نامعتبر است."
+
+#: uc_raypay.module:71;224
+msgid "RayPay is not configured properly."
+msgstr "رای پی به درستی پیکربندی نشده است."
+
+#: uc_raypay.module:101;103
+msgid "Transaction not successful or cancelled by user."
+msgstr "تراکنش موفقیت آمیز نبوده و یا توسط کاربر لغو شده است."
+
+#: uc_raypay.module:114
+msgid "An unexpected error occured."
+msgstr "یک خطای غیر منتظره رخ داد."
+
+#: uc_raypay.module:122
+msgid "Payment successful. Refernce: %refid"
+msgstr "پرداخت موفقیت آمیز بود. شماره ارجاع را یاد داشت کنید: %refid"
+
+#: uc_raypay.module:143;144;150;154
+msgid "RayPay Gateway"
+msgstr "درگاه پرداخت رای پی"
+
+#: uc_raypay.module:156
+msgid "Redirect to RayPay Gateway to pay by credit card."
+msgstr "هدایت به درگاه پرداخت رای پی."
+
+#: uc_raypay.module:178
+msgid "UserID"
+msgstr "شناسه کاربری"
+
+msgid "MarketingID"
+msgstr "شناسه کسب و کار"
+
+msgid "EnableSandBox"
+msgstr "فعالسازی SandBox"
+
+#: uc_raypay.module:179
+msgid "Your RayPay account userID."
+msgstr "شناسه کاربری در پنل رای پی شما"
+
+#: uc_raypay.module:179
+msgid "Your RayPay account marketingID."
+msgstr "شناسه کسب و کار در پنل رای پی شما"
+
+#: uc_raypay.module:186
+msgid "RayPay website language"
+msgstr "زبان سایت"
+
+#: uc_raypay.module:189
+msgid "Farsi"
+msgstr "فارسی"
+
+#: uc_raypay.module:190
+msgid "English"
+msgstr "انگلیسی"
+
+
+#: uc_raypay.module:189
+msgid "Yes"
+msgstr "بله"
+
+#: uc_raypay.module:190
+msgid "No"
+msgstr "خیر"
+
+#: uc_raypay.module:194
+msgid "Nusoap library (Recommended)"
+msgstr "کتابخانه ی Nusoap (توصیه شده)"
+
+#: uc_raypay.module:196
+msgid "PHP SoapClient class"
+msgstr "کلاس SoapClient در PHP"
+
+#: uc_raypay.module:200
+msgid "Soap Mode"
+msgstr "حالت Soap"
+
+#: uc_raypay.module:260
+msgid "Submit Order"
+msgstr "ارسال سفارش"
+
+#: uc_raypay.module:63;97;103;121
+msgid "raypay"
+msgstr "رای پی"
+
+#: uc_raypay.module:63
+msgid "Invalid order id passed to uc_raypay_complete_page()"
+msgstr "شناسه ی سفارش نامعتبر به تابع complete_page() ارسال شده است."
+
+#: uc_raypay.module:121
+msgid "RayPay payment #%refid verification succeeded"
+msgstr "پرداخت رای پی با شناسه پرداخت #%refid با موفقیت تایید گردید."
+
+#: uc_raypay.module:21
+msgid "Order complete"
+msgstr "تکمیل سفارش"
+
+#: uc_raypay.info:0
+msgid "RayPay"
+msgstr "رای پی"
+
+#: uc_raypay.info:0
+msgid "A module for checkout using RayPay Gateway"
+msgstr "یک ماژول برای پرداخت با درگاه پرداخت رای پی"
+
+#: uc_raypay.info:0
+msgid "Ubercart - payment"
+msgstr "آبرکارت - پرداخت"
